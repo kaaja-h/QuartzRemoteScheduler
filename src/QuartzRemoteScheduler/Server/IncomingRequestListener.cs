@@ -1,0 +1,98 @@
+﻿using System;
+using System.IO;
+using System.Net.Security;
+using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Threading;
+using System.Threading.Tasks;
+using Quartz;
+using QuartzRemoteScheduler.Common.Configuration;
+using QuartzRemoteScheduler.Server.Listeners;
+using StreamJsonRpc;
+
+namespace QuartzRemoteScheduler.Server
+{
+    class IncomingRequestListener
+    {
+        private readonly RemoteSchedulerServerConfiguration _configuration;
+        private readonly IScheduler _scheduler;
+        private readonly EventSchedulerListener _schedulerListener;
+        private readonly EventJobListener _eventJobListener;
+        private readonly EventTriggerListener _eventTriggerListener;
+
+        public IncomingRequestListener(RemoteSchedulerServerConfiguration configuration,IScheduler scheduler, EventSchedulerListener schedulerListener, EventJobListener eventJobListener, EventTriggerListener eventTriggerListener)
+        {
+            _configuration = configuration;
+            _scheduler = scheduler;
+            _schedulerListener = schedulerListener;
+            _eventJobListener = eventJobListener;
+            _eventTriggerListener = eventTriggerListener;
+        }
+        
+        public void Listen(CancellationToken cancelationToken)
+        {
+            
+            TcpListener listener = new TcpListener(_configuration.Address, +_configuration.Port);
+            // Listen for incoming connections.
+            listener.Start();
+            cancelationToken.Register(() => listener.Stop());
+            while (!cancelationToken.IsCancellationRequested)
+            {
+                TcpClient clientRequest;
+                clientRequest = listener.AcceptTcpClient();
+
+                Console.WriteLine("Client connected.");
+                if (_configuration.EnableNegotiateStream)
+                    AuthenticateClientAsync(clientRequest);
+                else
+                {
+                    Task.Run(() => ConnectWithServer(clientRequest.GetStream(), clientRequest), cancelationToken);
+                }
+            }
+            listener.Stop();
+        }
+
+        private void ConnectWithServer(Stream stream, TcpClient client)
+        {
+            var connector = new LengthHeaderMessageHandler(stream, stream, new MessagePackFormatter());
+            JsonRpc server = new JsonRpc(connector);
+            var schedulerProxy = new SchedulerRpcServer(client, _scheduler, _schedulerListener);
+            server.AddLocalRpcTarget(schedulerProxy);
+            var triggerRpcProxy = new TriggerRpcServer(_scheduler);
+            server.AddLocalRpcTarget(triggerRpcProxy);
+            server.Completion.ContinueWith(
+                task => schedulerProxy.Dispose(), TaskScheduler.Default
+            );
+            server.StartListening();
+        }
+
+        public async Task AuthenticateClientAsync(TcpClient clientRequest)
+        {
+            try
+            {
+                NetworkStream stream = clientRequest.GetStream();
+                
+                NegotiateStream authStream = new NegotiateStream(stream, false);
+                Task authTask = authStream.AuthenticateAsServerAsync()
+                    .ContinueWith(d =>
+                    {
+                        if (d.IsCompleted && !d.IsFaulted)
+                            ConnectWithServer(authStream, clientRequest);
+                    },TaskScheduler.Default);
+                await authTask;
+            }
+            catch (AuthenticationException e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Authentication failed - closing connection.");
+                clientRequest.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Closing connection.");
+                clientRequest.Close();
+            }
+        }
+    }
+}

@@ -89,7 +89,7 @@ namespace QuartzRemoteScheduler.Test.Common
         {
             var sch = await factory.GetScheduler();
             await sch.Start();
-
+            await Task.Delay(1000);
             return sch;
         }
 

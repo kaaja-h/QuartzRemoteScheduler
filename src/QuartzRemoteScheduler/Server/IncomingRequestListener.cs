@@ -40,16 +40,19 @@ namespace QuartzRemoteScheduler.Server
             {
                 TcpClient clientRequest;
                 clientRequest = listener.AcceptTcpClient();
-
-                Console.WriteLine("Client connected.");
-                if (_configuration.EnableNegotiateStream)
-                    AuthenticateClientAsync(clientRequest);
-                else
-                {
-                    Task.Run(() => ConnectWithServer(clientRequest.GetStream(), clientRequest), cancelationToken);
-                }
+                ProcessClientConnection(clientRequest, cancelationToken);
             }
             listener.Stop();
+        }
+
+        private async Task ProcessClientConnection(TcpClient request, CancellationToken cancelationToken)
+        {
+            if (_configuration.EnableNegotiateStream)
+                await AuthenticateClientAsync(request);
+            else
+            {
+                ConnectWithServer(request.GetStream(), request);
+            }
         }
 
         private void ConnectWithServer(Stream stream, TcpClient client)

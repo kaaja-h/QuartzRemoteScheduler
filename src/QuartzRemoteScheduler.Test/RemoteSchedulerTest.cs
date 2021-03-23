@@ -112,6 +112,8 @@ namespace QuartzRemoteScheduler.Test
                 .WithIdentity("dddd", group)
                 .ForJob(detail)
                 .Build();
+            await _schedulerFixture.LocalScheduler.AddJob(detail, true);
+            await _schedulerFixture.LocalScheduler.ScheduleJob(trigger);
             var remoteScheduler = await _schedulerFixture.GetRemoteSchedulerAsync();
             var loc = await _schedulerFixture.LocalScheduler.GetTriggerGroupNames();
             var rem = await remoteScheduler.GetTriggerGroupNames();
@@ -132,6 +134,8 @@ namespace QuartzRemoteScheduler.Test
                 .WithIdentity("dddd", group)
                 .ForJob(detail)
                 .Build();
+            await _schedulerFixture.LocalScheduler.AddJob(detail, true);
+            await _schedulerFixture.LocalScheduler.ScheduleJob(trigger);
             var remoteScheduler = await _schedulerFixture.GetRemoteSchedulerAsync();
             await remoteScheduler.UnscheduleJob(trigger.Key);
             var tr = await _schedulerFixture.LocalScheduler.GetTrigger(trigger.Key);
@@ -164,8 +168,29 @@ namespace QuartzRemoteScheduler.Test
             {
                 Assert.Equal(jobData[key],dictionary[key]);    
             }
-            
-            
+        }
+
+        [Fact]
+        public async Task GetPausedTriggerGroupsTaskAsync()
+        {
+            var group = Guid.NewGuid().ToString();
+            var detail = JobBuilder.Create<TestJob>().StoreDurably(true)
+                .WithDescription("dsdfsdf")
+                .WithIdentity("dddd", group)
+                .Build();
+            var trigger = TriggerBuilder.Create().WithSimpleSchedule(
+                    s => s.WithRepeatCount(1).WithIntervalInMinutes(10)
+                ).StartAt(DateTimeOffset.Now + TimeSpan.FromMinutes(10))
+                .WithIdentity("dddd", group)
+                .ForJob(detail)
+                .Build();
+            await _schedulerFixture.LocalScheduler.AddJob(detail, true);
+            await _schedulerFixture.LocalScheduler.ScheduleJob(trigger);
+            await _schedulerFixture.LocalScheduler.PauseTriggers(GroupMatcher<TriggerKey>.GroupEquals(group));
+            var remoteScheduler = await _schedulerFixture.GetRemoteSchedulerAsync();
+            var remote = await remoteScheduler.GetPausedTriggerGroups();
+            var local = await _schedulerFixture.LocalScheduler.GetPausedTriggerGroups();
+            Assert.Equal(remote,local);
             
         }
         

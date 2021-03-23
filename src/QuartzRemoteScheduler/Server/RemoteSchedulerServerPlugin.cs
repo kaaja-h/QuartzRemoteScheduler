@@ -58,7 +58,7 @@ namespace QuartzRemoteScheduler.Server
             _scheduler.ListenerManager.AddSchedulerListener(_schedulerListener);
             _scheduler.ListenerManager.AddTriggerListener(_eventTriggerListener);
             _scheduler.ListenerManager.AddJobListener(_eventJobListener);
-            Thread t = new Thread(()=>_listener.Listen(_cancelationSource.Token));
+            var t = new Task(() => _listener.Listen(_cancelationSource.Token));
             t.Start();
             return Task.CompletedTask;
         }

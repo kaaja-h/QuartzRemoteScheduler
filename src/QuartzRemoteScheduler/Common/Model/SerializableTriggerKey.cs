@@ -2,21 +2,18 @@
 
 namespace QuartzRemoteScheduler.Common.Model
 {
-    class SerializableTriggerKey:KeyData<TriggerKey>
+    class SerializableTriggerKey:KeyData
     {
-        public SerializableTriggerKey()
-        {
-            
-        }
-
-        public SerializableTriggerKey(TriggerKey t):base(t)
-        {
-            
-        }
         
-        public override TriggerKey ToKey()
+
+        public static implicit operator TriggerKey(SerializableTriggerKey d) => new TriggerKey(d.Name, d.Group);
+
+        public static implicit operator SerializableTriggerKey(TriggerKey d) => new SerializableTriggerKey()
         {
-            return new TriggerKey(Name, Group);
-        }
+            Group = d.Group,
+            Name = d.Name
+        };
     }
+    
+    
 }

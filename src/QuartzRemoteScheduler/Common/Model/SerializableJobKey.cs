@@ -4,21 +4,14 @@ using Quartz;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    class SerializableJobKey:KeyData<JobKey>
+    class SerializableJobKey:KeyData
     {
-        public SerializableJobKey()
-        {
-            
-        }
+        public static implicit operator JobKey(SerializableJobKey d) => new JobKey(d.Name, d.Group);
 
-        public SerializableJobKey(JobKey t):base(t)
+        public static implicit operator SerializableJobKey(JobKey d) => new SerializableJobKey()
         {
-            
-        }
-        
-        public override JobKey ToKey()
-        {
-            return new JobKey(Name, Group);
-        }
+            Group = d.Group,
+            Name = d.Name
+        };
     }
 }

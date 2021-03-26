@@ -22,8 +22,7 @@ namespace QuartzRemoteScheduler.Server.Listeners
         public Task<bool> VetoJobExecution(ITrigger trigger, IJobExecutionContext context,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.FromResult(true);
-            
+            return Task.FromResult(false);
         }
 
         public Task TriggerMisfired(ITrigger trigger, CancellationToken cancellationToken = new CancellationToken())

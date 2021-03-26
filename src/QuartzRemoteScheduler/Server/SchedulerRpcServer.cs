@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
@@ -105,49 +106,55 @@ namespace QuartzRemoteScheduler.Server
 
         public async Task<bool> UnscheduleJobAsync(SerializableTriggerKey serializableTriggerKey, CancellationToken cancellationToken)
         {
-            return await _scheduler.UnscheduleJob(serializableTriggerKey.ToKey(), cancellationToken);
+            return await _scheduler.UnscheduleJob(serializableTriggerKey, cancellationToken);
         }
 
         public async Task<bool> UnscheduleJobsAsync(SerializableTriggerKey[] triggerKeys, CancellationToken cancellationToken)
         {
-            var keys = triggerKeys.Select(k => k.ToKey()).ToArray();
+            var keys = triggerKeys.Select(t=>(TriggerKey) t).ToArray();
             return await _scheduler.UnscheduleJobs(keys, cancellationToken);
         }
 
         public async Task<bool> DeleteJobAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
         {
-            return await _scheduler.DeleteJob(serializableJobKey.ToKey(), cancellationToken);
+            return await _scheduler.DeleteJob(serializableJobKey, cancellationToken);
         }
 
         public async Task<bool> DeleteJobsAsync(SerializableJobKey[] jobKeys, CancellationToken cancellationToken)
         {
-            var keys = jobKeys.Select(k => k.ToKey()).ToArray();
+            var keys = jobKeys.Select(k => (JobKey)k).ToArray();
             return await _scheduler.DeleteJobs(keys, cancellationToken);
         }
 
         public async Task TriggerJobAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
         {
-            await _scheduler.TriggerJob(serializableJobKey.ToKey(),cancellationToken);
+            await _scheduler.TriggerJob(serializableJobKey,cancellationToken);
+        }
+
+        public async Task TriggerJobAsync(SerializableJobKey serializableJobKey, SerializableJobDataMap dataMap,
+            CancellationToken cancellationToken)
+        {
+            await _scheduler.TriggerJob(serializableJobKey, dataMap.GetMap(), cancellationToken);
         }
 
         public async Task PauseJobAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
         {
-            await _scheduler.PauseJob(serializableJobKey.ToKey(), cancellationToken);
+            await _scheduler.PauseJob(serializableJobKey, cancellationToken);
         }
 
         public async Task PauseTriggerAsync(SerializableTriggerKey serializableTriggerKey, CancellationToken cancellationToken)
         {
-            await _scheduler.PauseTrigger(serializableTriggerKey.ToKey(), cancellationToken);
+            await _scheduler.PauseTrigger(serializableTriggerKey, cancellationToken);
         }
 
         public async Task ResumeJobAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
         {
-            await _scheduler.ResumeJob(serializableJobKey.ToKey(), cancellationToken);
+            await _scheduler.ResumeJob(serializableJobKey, cancellationToken);
         }
 
         public async Task ResumeTriggerAsync(SerializableTriggerKey serializableTriggerKey, CancellationToken cancellationToken)
         {
-            await _scheduler.ResumeTrigger(serializableTriggerKey.ToKey(), cancellationToken);
+            await _scheduler.ResumeTrigger(serializableTriggerKey, cancellationToken);
         }
 
         public async Task PauseAllAsync(CancellationToken cancellationToken)
@@ -162,7 +169,7 @@ namespace QuartzRemoteScheduler.Server
 
         public async Task<int> GetTriggerStateAsync(SerializableTriggerKey serializableTriggerKey, CancellationToken cancellationToken)
         {
-            var res = await _scheduler.GetTriggerState(serializableTriggerKey.ToKey(), cancellationToken);
+            var res = await _scheduler.GetTriggerState(serializableTriggerKey, cancellationToken);
             return (int) res;
         }
 
@@ -173,17 +180,17 @@ namespace QuartzRemoteScheduler.Server
 
         public async Task<bool> InterruptAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
         {
-            return await _scheduler.Interrupt(serializableJobKey.ToKey(), cancellationToken);
+            return await _scheduler.Interrupt(serializableJobKey, cancellationToken);
         }
 
         public async Task<bool> CheckExistsAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
         {
-            return await _scheduler.CheckExists(serializableJobKey.ToKey(), cancellationToken);
+            return await _scheduler.CheckExists(serializableJobKey, cancellationToken);
         }
 
         public async Task<bool> CheckExistsAsync(SerializableTriggerKey serializableTriggerKey, CancellationToken cancellationToken)
         {
-            return await _scheduler.CheckExists(serializableTriggerKey.ToKey(), cancellationToken);
+            return await _scheduler.CheckExists(serializableTriggerKey, cancellationToken);
         }
 
         public async Task<SerializableSchedulerMetaData> GetMetaDataAsync(CancellationToken cancellationToken)
@@ -197,10 +204,72 @@ namespace QuartzRemoteScheduler.Server
             return (await _scheduler.GetCalendar(calName, cancellationToken))?.GetType().AssemblyQualifiedName;
         }
 
-        public async Task<JobDetailData> GetJobDetailAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
+        public async Task<SerializableJobDetail> GetJobDetailAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken)
         {
-            var res = await _scheduler.GetJobDetail(serializableJobKey.ToKey(), cancellationToken);
-            return new JobDetailData(res);
+            var res = await _scheduler.GetJobDetail(serializableJobKey, cancellationToken);
+            return new SerializableJobDetail(res);
+        }
+
+        public async Task<SerializableTrigger> GetTriggerAsync(SerializableTriggerKey triggerKey, CancellationToken cancellationToken)
+        {
+            var tr = await _scheduler.GetTrigger(triggerKey, cancellationToken);
+            return new SerializableTrigger(tr);
+        }
+
+        public async Task<DateTimeOffset> ScheduleJobAsync(SerializableJobDetail jobDetail, SerializableTrigger trigger, CancellationToken token)
+        {
+            var job = jobDetail.GetJobDetail();
+            var tr = trigger.Trigger;
+            return await _scheduler.ScheduleJob(job, tr, token);
+        }
+
+        public async Task<DateTimeOffset> ScheduleJobAsync(SerializableTrigger trigger, CancellationToken cancellationToken)
+        {
+            return await _scheduler.ScheduleJob(trigger.Trigger, cancellationToken);
+        }
+
+        public async Task ScheduleJobsAsync(JobTriggersPairs triggersAndJobs, bool replace, CancellationToken cancellationToken)
+        {
+            var d = triggersAndJobs.Data.ToDictionary(
+                k => k.Detail.GetJobDetail(),
+                k => (IReadOnlyCollection<ITrigger>) k.Triggers.Select(t => t.Trigger).ToArray()
+            );
+            await _scheduler.ScheduleJobs(d, replace, cancellationToken);
+        }
+
+        public async Task ScheduleJobAsync(SerializableJobDetail jobDetail, SerializableTrigger[] trigger, bool replace,CancellationToken token)
+        {
+            await _scheduler.ScheduleJob(jobDetail.GetJobDetail(), trigger.Select(t => t.Trigger).ToArray(),
+                replace, token);
+        }
+
+        public async Task<DateTimeOffset?> RescheduleJobAsync(SerializableTriggerKey triggerKey, SerializableTrigger newTrigger,
+            CancellationToken cancellationToken)
+        {
+            return await _scheduler.RescheduleJob(triggerKey, newTrigger.Trigger, cancellationToken);
+        }
+
+        public async Task AddJobAsync(SerializableJobDetail jobDetail, bool replace, bool? storeNonDurableWhileAwaitingScheduling,
+            CancellationToken cancellationToken)
+        {
+            var job = jobDetail.GetJobDetail();
+            if (storeNonDurableWhileAwaitingScheduling.HasValue)
+                await _scheduler.AddJob(job, replace, storeNonDurableWhileAwaitingScheduling.Value, cancellationToken);
+            else
+            {
+                await _scheduler.AddJob(job, replace, cancellationToken);
+            }
+        }
+
+        public async Task<SerializableTrigger[]> GetTriggersOfJobAsync(SerializableJobKey jobKey, CancellationToken cancellationToken)
+        {
+            var res = await _scheduler.GetTriggersOfJob(jobKey, cancellationToken);
+            return res.Select(t => new SerializableTrigger(t)).ToArray();
+        }
+
+        public async Task PauseJobsAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken)
+        {
+            await _scheduler.PauseJobs(matcher.GetMatcher(), cancellationToken);
         }
 
         public void Dispose()

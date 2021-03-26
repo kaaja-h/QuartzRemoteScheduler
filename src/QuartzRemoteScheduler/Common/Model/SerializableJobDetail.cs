@@ -1,20 +1,21 @@
-﻿using MessagePack;
+﻿using System;
+using MessagePack;
 using Quartz;
 
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    class JobDetailData
+    class SerializableJobDetail
     {
 
-        public JobDetailData()
+        public SerializableJobDetail()
         {
             
         }
         
-        public JobDetailData(IJobDetail data)
+        public SerializableJobDetail(IJobDetail data)
         {
-            Key = new SerializableJobKey(data.Key);
+            Key = data.Key;
             Description = data.Description;
             JobType = data.JobType.AssemblyQualifiedName;
             SerializableJobDataMap = (data.JobDataMap==null)?null:new SerializableJobDataMap(data.JobDataMap);
@@ -32,5 +33,18 @@ namespace QuartzRemoteScheduler.Common.Model
         public bool PersistJobDataAfterExecution { get; set; }
         public bool ConcurrentExecutionDisallowed { get; set; }
         public bool RequestsRecovery { get; set; }
+
+        public IJobDetail GetJobDetail()
+        {
+            var type = Type.GetType(JobType);
+            var builder = JobBuilder.Create(type);
+            builder.RequestRecovery(RequestsRecovery)
+                .StoreDurably(Durable)
+                .WithDescription(Description)
+                .WithIdentity(Key)
+                .SetJobData(SerializableJobDataMap.GetMap());
+            return builder.Build();
+
+        }
     }
 }

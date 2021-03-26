@@ -1,41 +1,56 @@
 ﻿using System;
 using MessagePack;
 using Quartz;
+using Quartz.Impl.Triggers;
 
 namespace QuartzRemoteScheduler.Common.Model
 {
-    [MessagePackObject(keyAsPropertyName:true)]
+    [MessagePack.MessagePackObject(true)]
     class SerializableTrigger
     {
-        public SerializableTriggerKey Key { get; set; }
-        public SerializableJobKey JobKey { get; set; }
-        public string Description { get; set; }
-        public string CalendarName { get; set; }
-        public SerializableJobDataMap JobDataMap { get; set; }
-        public DateTimeOffset? FinalFireTimeUtc { get; set; }
-        public int MisfireInstruction { get; set; }
-        public DateTimeOffset? EndTimeUtc { get; set; }
-        public DateTimeOffset StartTimeUtc { get; set; }
-        public int Priority { get; set; }
-        public bool HasMillisecondPrecision { get; set; }
+        
+        
+        
+        public SerializableTriggerBase SerializableTriggerBase { get; set; }
+        public SerializableCronTrigger SerializableCronTrigger { get; set; }
+        public SerializableSimpleTrigger SerializableSimpleTrigger { get; set; }
+
+        public ITrigger Trigger
+        {
+            get
+            {
+                if (SerializableCronTrigger != null)
+                    return SerializableCronTrigger.ToTrigger();
+                if (SerializableSimpleTrigger != null)
+                    return SerializableSimpleTrigger.ToTrigger();
+                return null;
+            }
+        }
+        
+        public SerializableTrigger(ITrigger data)
+        {
+            if (data is ICronTrigger ct)
+                SerializableCronTrigger =  new SerializableCronTrigger(ct);
+            else if (data is ISimpleTrigger st)
+                SerializableSimpleTrigger = new SerializableSimpleTrigger(st);
+            else
+                SerializableTriggerBase = new SerializableTriggerBase(data);
+        }
 
         public SerializableTrigger()
         {
+            
         }
+        
+        
 
-        SerializableTrigger(ITrigger data)
-        {
-            Key = new SerializableTriggerKey(data.Key);
-            JobKey = new SerializableJobKey(data.JobKey);
-            Description = data.Description;
-            CalendarName = data.CalendarName;
-            JobDataMap = new SerializableJobDataMap(data.JobDataMap);
-            FinalFireTimeUtc = data.FinalFireTimeUtc;
-            MisfireInstruction = data.MisfireInstruction;
-            EndTimeUtc = data.EndTimeUtc;
-            StartTimeUtc = data.StartTimeUtc;
-            Priority = data.Priority;
-            HasMillisecondPrecision = data.HasMillisecondPrecision;
-        }
+ 
+
+
+
+
+
+        
+        
     }
 }

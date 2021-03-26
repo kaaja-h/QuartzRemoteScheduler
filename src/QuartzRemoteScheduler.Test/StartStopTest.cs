@@ -37,5 +37,21 @@ namespace QuartzRemoteScheduler.Test
             await rem.Shutdown();
             Assert.True(scheduler.LocalScheduler.IsShutdown);
         }
+
+        [Fact]
+        public async Task ShutdownTestAsync()
+        {
+            BasicSchedulerFixture scheduler = new BasicSchedulerFixture();
+            int i = 0;
+            while (i < 10 && !scheduler.LocalScheduler.IsStarted)
+            {
+                await Task.Delay(1000);
+                i++;
+            }
+            Assert.True(scheduler.LocalScheduler.IsStarted);
+            var rem = await scheduler.GetRemoteSchedulerAsync();
+            await rem.Shutdown(false);
+            Assert.True(scheduler.LocalScheduler.IsShutdown);
+        }
     }
 }

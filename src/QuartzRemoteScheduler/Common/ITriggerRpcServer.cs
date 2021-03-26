@@ -14,5 +14,10 @@ namespace QuartzRemoteScheduler.Common
 
         Task<DateTimeOffset?> GetFireTimeAfterAsync(SerializableTriggerKey key, DateTimeOffset? afterTime);
 
+
+
+        Task<string> GetCronExpressionSummaryAsync(SerializableTriggerKey key);
+
+
     }
 }

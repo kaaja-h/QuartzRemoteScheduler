@@ -8,26 +8,31 @@ namespace QuartzRemoteScheduler.Client.Model
     {
         public JobBuilder GetJobBuilder()
         {
-            throw new NotImplementedException();
+            return JobBuilder.Create(JobType).RequestRecovery(RequestsRecovery)
+                .StoreDurably(Durable)
+                .WithDescription(Description)
+                .WithIdentity(Key)
+                .UsingJobData(JobDataMap);
+            
         }
 
         public IJobDetail Clone()
         {
-            throw new NotImplementedException();
+            return GetJobBuilder().Build();
         }
 
-        public JobKey Key { get; set; }
-        public string Description { get; set; }
-        public Type JobType { get; set; }
-        public JobDataMap JobDataMap { get; set; }
-        public bool Durable { get; set; }
-        public bool PersistJobDataAfterExecution { get; set; }
-        public bool ConcurrentExecutionDisallowed { get; set; }
+        public JobKey Key { get;  }
+        public string Description { get; }
+        public Type JobType { get; }
+        public JobDataMap JobDataMap { get;  }
+        public bool Durable { get; }
+        public bool PersistJobDataAfterExecution { get;  }
+        public bool ConcurrentExecutionDisallowed { get;  }
         public bool RequestsRecovery { get; set; }
 
-        public RemoteJobDetail(JobDetailData data)
+        public RemoteJobDetail(SerializableJobDetail data)
         {
-            Key = data.Key.ToKey();
+            Key = data.Key;
             Description = data.Description;
             JobType = Type.GetType(data.JobType);
             Durable = data.Durable;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using QuartzRemoteScheduler.Common.Model;
@@ -47,6 +48,7 @@ namespace QuartzRemoteScheduler.Common
         Task<bool> DeleteJobsAsync(SerializableJobKey[] jobKeys, CancellationToken cancellationToken);
 
         Task TriggerJobAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken);
+        Task TriggerJobAsync(SerializableJobKey serializableJobKey, SerializableJobDataMap dataMap,CancellationToken cancellationToken);
 
         Task PauseJobAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken);
 
@@ -74,6 +76,29 @@ namespace QuartzRemoteScheduler.Common
 
         Task<string> GetCalendarAsync(string calName, CancellationToken cancellationToken);
 
-        Task<JobDetailData> GetJobDetailAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken);
+        Task<SerializableJobDetail> GetJobDetailAsync(SerializableJobKey serializableJobKey, CancellationToken cancellationToken);
+
+        Task<SerializableTrigger> GetTriggerAsync(SerializableTriggerKey triggerKey, CancellationToken cancellationToken);
+
+        Task<DateTimeOffset> ScheduleJobAsync(SerializableJobDetail jobDetail, SerializableTrigger trigger,
+            CancellationToken token);
+
+        Task<DateTimeOffset> ScheduleJobAsync(SerializableTrigger trigger, CancellationToken cancellationToken);
+
+        Task ScheduleJobsAsync(JobTriggersPairs triggersAndJobs, bool replace,
+            CancellationToken cancellationToken);
+        
+        Task ScheduleJobAsync(SerializableJobDetail jobDetail, SerializableTrigger[] trigger, bool replace,
+            CancellationToken token);
+
+        Task<DateTimeOffset?> RescheduleJobAsync(SerializableTriggerKey triggerKey, SerializableTrigger newTrigger,
+            CancellationToken cancellationToken);
+
+        Task AddJobAsync(SerializableJobDetail jobDetail, bool replace, bool? storeNonDurableWhileAwaitingScheduling,
+            CancellationToken cancellationToken);
+
+        Task<SerializableTrigger[]> GetTriggersOfJobAsync(SerializableJobKey jobKey, CancellationToken cancellationToken);
+
+        Task PauseJobsAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken);
     }
 }

@@ -4,7 +4,7 @@ using Quartz;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    class SerializableJobKey:KeyData
+    internal class SerializableJobKey:KeyData
     {
         public static implicit operator JobKey(SerializableJobKey d) => new JobKey(d.Name, d.Group);
 

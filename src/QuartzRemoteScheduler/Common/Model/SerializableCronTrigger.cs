@@ -1,12 +1,11 @@
 ﻿using System;
 using MessagePack;
 using Quartz;
-using Quartz.Impl.Triggers;
 
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName:true)]
-    class SerializableCronTrigger:SerializableTriggerBase
+    internal class SerializableCronTrigger:SerializableTriggerBase
     {
 
         public string CronExpressionString { get; set; }

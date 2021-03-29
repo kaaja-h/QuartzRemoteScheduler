@@ -11,7 +11,7 @@ using QuartzRemoteScheduler.Server.Listeners;
 
 namespace QuartzRemoteScheduler.Server
 {
-    class SchedulerRpcServer : ISchedulerRpcService, IDisposable
+    internal class SchedulerRpcServer : ISchedulerRpcService, IDisposable
     {
         private readonly TcpClient _client;
         private readonly IScheduler _scheduler;
@@ -270,6 +270,39 @@ namespace QuartzRemoteScheduler.Server
         public async Task PauseJobsAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken)
         {
             await _scheduler.PauseJobs(matcher.GetMatcher(), cancellationToken);
+        }
+
+        public async Task PauseTriggersAsync(SerializableTriggerMatcher matcher, CancellationToken cancellationToken)
+        {
+            await _scheduler.PauseTriggers(matcher.GetMatcher(), cancellationToken);
+        }
+
+        public async Task ResumeJobsAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken)
+        {
+            await _scheduler.ResumeJobs(matcher.GetMatcher(), cancellationToken);
+        }
+
+        public async Task ResumeTriggersAsync(SerializableTriggerMatcher matcher, CancellationToken cancellationToken)
+        {
+            await _scheduler.ResumeTriggers(matcher.GetMatcher(), cancellationToken);
+        }
+
+        public async Task<SerializableJobKey[]> GetJobKeysAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken)
+        {
+            var res = await _scheduler.GetJobKeys(matcher.GetMatcher(), cancellationToken);
+            return res.Select(d => (SerializableJobKey) d).ToArray();
+        }
+
+        public async Task<SerializableTriggerKey[]> GetTriggerKeysAsync(SerializableTriggerMatcher matcher, CancellationToken cancellationToken)
+        {
+            var res = await _scheduler.GetTriggerKeys(matcher.GetMatcher(), cancellationToken);
+            return res.Select(d => (SerializableTriggerKey) d).ToArray();
+        }
+
+        public async Task<SerializableJobExecutionContext[]> GetCurrentlyExecutingJobsAsync(CancellationToken cancellationToken)
+        {
+            var res = await _scheduler.GetCurrentlyExecutingJobs(cancellationToken);
+            return res.Select(d => new SerializableJobExecutionContext(d)).ToArray();
         }
 
         public void Dispose()

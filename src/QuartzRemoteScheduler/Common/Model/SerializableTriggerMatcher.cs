@@ -5,7 +5,7 @@ using Quartz.Impl.Matchers;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(true)]
-    class SerializableTriggerMatcher:SerializableMatcher<TriggerKey>
+    internal class SerializableTriggerMatcher:SerializableMatcher<TriggerKey>
     {
         public SerializableTriggerMatcher()
         {

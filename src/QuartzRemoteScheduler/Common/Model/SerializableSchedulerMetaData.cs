@@ -5,7 +5,7 @@ using Quartz;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    class SerializableSchedulerMetaData
+    internal class SerializableSchedulerMetaData
     {
         public string SchedulerName { get; set; }
 

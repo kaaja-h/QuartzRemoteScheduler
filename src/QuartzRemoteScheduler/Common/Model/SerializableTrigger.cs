@@ -1,12 +1,9 @@
-﻿using System;
-using MessagePack;
-using Quartz;
-using Quartz.Impl.Triggers;
+﻿using Quartz;
 
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePack.MessagePackObject(true)]
-    class SerializableTrigger
+    internal class SerializableTrigger
     {
         
         

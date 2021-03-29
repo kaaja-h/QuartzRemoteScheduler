@@ -1,11 +1,10 @@
 ﻿using System;
 using Quartz;
-using Quartz.Impl.Triggers;
 using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Client.Model.Trigger
 {
-    class RemoteConnectedCronTrigger : RemoteConnectedTrigger, ICronTrigger
+    internal class RemoteConnectedCronTrigger : RemoteConnectedTrigger, ICronTrigger
     {
         public string GetExpressionSummary()
         {

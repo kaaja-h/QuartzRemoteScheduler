@@ -4,7 +4,7 @@ using Quartz;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    class SchedulerBasicData
+    internal class SchedulerBasicData
     {
       
         

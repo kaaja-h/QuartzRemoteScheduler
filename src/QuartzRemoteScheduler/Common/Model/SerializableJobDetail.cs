@@ -5,7 +5,7 @@ using Quartz;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    class SerializableJobDetail
+    internal class SerializableJobDetail
     {
 
         public SerializableJobDetail()

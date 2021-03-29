@@ -3,7 +3,7 @@ using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Client.Model.Trigger
 {
-    static class RemoteConnectedTriggerFactory
+    internal static class RemoteConnectedTriggerFactory
     {
         public static ITrigger GetTrigger(SerializableTrigger data, Connector connector)
         {

@@ -6,10 +6,7 @@ using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Server
 {
-    
-    
-    
-    class TriggerRpcServer:ITriggerRpcServer
+    internal class TriggerRpcServer:ITriggerRpcServer
     {
         private readonly IScheduler _scheduler;
 
@@ -47,7 +44,7 @@ namespace QuartzRemoteScheduler.Server
         public async Task<string> GetCronExpressionSummaryAsync(SerializableTriggerKey key)
         {
             var tr = (await _scheduler.GetTrigger(key))as ICronTrigger;
-            return tr.GetExpressionSummary();
+            return tr?.GetExpressionSummary();
         }
 
 

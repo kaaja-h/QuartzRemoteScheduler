@@ -2,7 +2,7 @@
 
 namespace QuartzRemoteScheduler.Common.Model
 {
-    class SerializableTriggerKey:KeyData
+    internal class SerializableTriggerKey:KeyData
     {
         
 

@@ -12,7 +12,7 @@ using StreamJsonRpc;
 
 namespace QuartzRemoteScheduler.Server
 {
-    class IncomingRequestListener
+    internal class IncomingRequestListener
     {
         private readonly RemoteSchedulerServerConfiguration _configuration;
         private readonly IScheduler _scheduler;

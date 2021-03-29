@@ -1,14 +1,12 @@
 ﻿using System.Linq;
-using System.Text.RegularExpressions;
 using MessagePack;
 using Quartz.Impl.Matchers;
 using Quartz.Util;
-using QuartzRemoteScheduler.Client.Model.Trigger;
 
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(true)]
-    class SerializableMatcher<T> where T:Key<T>
+    internal class SerializableMatcher<T> where T:Key<T>
     {
         public string OperatorName { get; set; }
         public string StringValue { get; set; }

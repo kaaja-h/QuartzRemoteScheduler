@@ -4,7 +4,7 @@ using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Common
 {
-    interface ITriggerRpcServer
+    internal interface ITriggerRpcServer
     {
         Task<bool> GetMayFireAgainAsync(SerializableTriggerKey key);
 

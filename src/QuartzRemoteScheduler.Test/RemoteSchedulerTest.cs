@@ -762,6 +762,37 @@ namespace QuartzRemoteScheduler.Test
             Assert.Contains(trs, d => d.Key.Equals(trigger1.Key));
             Assert.Contains(trs, d => d.Key.Equals(trigger2.Key));
         }
-        
+
+
+        [Fact]
+        public async Task PauseTriggersTestAsync()
+        {
+            string group = Guid.NewGuid().ToString();
+            var detail = JobBuilder.Create<TestJob>().StoreDurably(true)
+                .WithDescription("dfsdf")
+                .Build();
+            var trigger1 = TriggerBuilder.Create().WithSimpleSchedule(
+                    s => s.WithRepeatCount(1).WithIntervalInMinutes(10)
+                ).StartAt(DateTimeOffset.Now + TimeSpan.FromMinutes(10))
+                .ForJob(detail)
+                .WithIdentity(Guid.NewGuid().ToString(),group)
+                .Build();
+            var trigger2 = TriggerBuilder.Create().WithSimpleSchedule(
+                    s => s.WithRepeatCount(1).WithIntervalInMinutes(10)
+                ).StartAt(DateTimeOffset.Now + TimeSpan.FromMinutes(10))
+                .ForJob(detail)
+                .WithIdentity(Guid.NewGuid().ToString(),group)
+                .Build();
+            await _schedulerFixture.LocalScheduler.AddJob(detail, true);
+            await _schedulerFixture.LocalScheduler.ScheduleJob(trigger1);
+            await _schedulerFixture.LocalScheduler.ScheduleJob(trigger2);
+            var remoteScheduler = await _schedulerFixture.GetRemoteSchedulerAsync();
+            await remoteScheduler.PauseTriggers(GroupMatcher<TriggerKey>.GroupEquals(group));
+            var tr1 = await _schedulerFixture.LocalScheduler.GetTriggerState(trigger1.Key);
+            var tr2 = await _schedulerFixture.LocalScheduler.GetTriggerState(trigger2.Key);
+            Assert.Equal(TriggerState.Paused,tr2);
+            Assert.Equal(TriggerState.Paused,tr1);
+
+        }
     }
 }

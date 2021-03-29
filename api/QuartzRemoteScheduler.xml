@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>QuartzRemoteScheduler</name>
+    </assembly>
+    <members>
+        <member name="T:QuartzRemoteScheduler.Client.RemoteSchedulerFactory">
+            <summary>
+            Class for creating scheduler client for remote server
+            </summary>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Client.RemoteSchedulerFactory.#ctor(QuartzRemoteScheduler.Common.Configuration.RemoteSchedulerServerConfiguration)">
+            <summary>
+            Constructor with configuration
+            </summary>
+            <param name="conf">Connection configuration</param>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Client.RemoteSchedulerFactory.GetAllSchedulers(System.Threading.CancellationToken)">
+            <summary>
+            <see cref="M:Quartz.ISchedulerFactory.GetAllSchedulers(System.Threading.CancellationToken)"/>
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Client.RemoteSchedulerFactory.GetScheduler(System.Threading.CancellationToken)">
+            <summary>
+            <see cref="M:Quartz.ISchedulerFactory.GetScheduler(System.Threading.CancellationToken)"/>
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Client.RemoteSchedulerFactory.GetScheduler(System.String,System.Threading.CancellationToken)">
+            <summary>
+            <see cref="M:Quartz.ISchedulerFactory.GetScheduler(System.String,System.Threading.CancellationToken)"/>
+            </summary>
+            <param name="schedName"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="T:QuartzRemoteScheduler.Common.Configuration.RemoteSchedulerServerConfiguration">
+            <summary>
+            Configuration for connection to server
+            </summary>
+        </member>
+        <member name="P:QuartzRemoteScheduler.Common.Configuration.RemoteSchedulerServerConfiguration.Address">
+            <summary>
+            Server Ip address
+            </summary>
+        </member>
+        <member name="P:QuartzRemoteScheduler.Common.Configuration.RemoteSchedulerServerConfiguration.Port">
+            <summary>
+            Server port
+            </summary>
+        </member>
+        <member name="P:QuartzRemoteScheduler.Common.Configuration.RemoteSchedulerServerConfiguration.EnableNegotiateStream">
+            <summary>
+            Use Negotiate stream
+            <see cref="T:System.Net.Security.NegotiateStream"/>
+            </summary>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Common.Configuration.RemoteSchedulerServerConfiguration.#ctor(System.String,System.Int32,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="address">server ip address</param>
+            <param name="port">server port</param>
+            <param name="enableNegotiateStream">use negotiate stream <see cref="T:System.Net.Security.NegotiateStream"/></param>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Common.Configuration.RemoteSchedulerServerConfiguration.#ctor(System.Net.IPAddress,System.Int32,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="address">server ip address</param>
+            <param name="port">server port</param>
+            <param name="enableNegotiateStream">use negotiate stream <see cref="T:System.Net.Security.NegotiateStream"/></param>
+        </member>
+        <member name="T:QuartzRemoteScheduler.Server.RemoteSchedulerServerPlugin">
+            <summary>
+            Plugin
+            </summary>
+        </member>
+        <member name="P:QuartzRemoteScheduler.Server.RemoteSchedulerServerPlugin.Address">
+            <summary>
+            server address
+            </summary>
+        </member>
+        <member name="P:QuartzRemoteScheduler.Server.RemoteSchedulerServerPlugin.Port">
+            <summary>
+            server port
+            </summary>
+        </member>
+        <member name="P:QuartzRemoteScheduler.Server.RemoteSchedulerServerPlugin.EnableNegotiateStream">
+            <summary>
+            use negotiate stream <see cref="T:System.Net.Security.NegotiateStream"/>
+            </summary>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Server.RemoteSchedulerServerPlugin.Initialize(System.String,Quartz.IScheduler,System.Threading.CancellationToken)">
+            <summary>
+            <see cref="M:Quartz.Spi.ISchedulerPlugin.Initialize(System.String,Quartz.IScheduler,System.Threading.CancellationToken)"/>
+            </summary>
+            <param name="pluginName"></param>
+            <param name="scheduler"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Server.RemoteSchedulerServerPlugin.Start(System.Threading.CancellationToken)">
+            <see cref="M:Quartz.Spi.ISchedulerPlugin.Start(System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:QuartzRemoteScheduler.Server.RemoteSchedulerServerPlugin.Shutdown(System.Threading.CancellationToken)">
+            <see cref="M:Quartz.Spi.ISchedulerPlugin.Shutdown(System.Threading.CancellationToken)"/>
+        </member>
+    </members>
+</doc>

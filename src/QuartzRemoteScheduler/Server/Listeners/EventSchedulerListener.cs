@@ -6,7 +6,7 @@ using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Server.Listeners
 {
-    class EventSchedulerListener:ISchedulerListener
+    internal class EventSchedulerListener:ISchedulerListener
     {
         private readonly IScheduler _scheduler;
         public event EventHandler<SchedulerBasicData> BasicDataChanged;

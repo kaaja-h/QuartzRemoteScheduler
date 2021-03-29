@@ -44,7 +44,8 @@ namespace QuartzRemoteScheduler.Client
 
         public async Task<IReadOnlyCollection<IJobExecutionContext>> GetCurrentlyExecutingJobs(CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            var res = await _connector.SchedulerRpcClient.GetCurrentlyExecutingJobsAsync(cancellationToken);
+            return res.Select(d => new RemoteJobExecutionContext(d, this)).ToArray();
         }
 
         public async Task<IReadOnlyCollection<string>> GetJobGroupNames(CancellationToken cancellationToken = new CancellationToken())
@@ -198,7 +199,8 @@ namespace QuartzRemoteScheduler.Client
 
         public async Task PauseTriggers(GroupMatcher<TriggerKey> matcher, CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            await _connector.SchedulerRpcClient.PauseTriggersAsync(new SerializableTriggerMatcher(matcher),
+                cancellationToken);
         }
 
         public async Task ResumeJob(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
@@ -208,7 +210,7 @@ namespace QuartzRemoteScheduler.Client
 
         public async Task ResumeJobs(GroupMatcher<JobKey> matcher, CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            await _connector.SchedulerRpcClient.ResumeJobsAsync(new SerializableJobMatcher(matcher), cancellationToken);
         }
 
         public async Task ResumeTrigger(TriggerKey triggerKey, CancellationToken cancellationToken = new CancellationToken())
@@ -218,7 +220,8 @@ namespace QuartzRemoteScheduler.Client
 
         public async Task ResumeTriggers(GroupMatcher<TriggerKey> matcher, CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            await _connector.SchedulerRpcClient.ResumeTriggersAsync(new SerializableTriggerMatcher(matcher),
+                cancellationToken);
         }
 
         public async Task PauseAll(CancellationToken cancellationToken = new CancellationToken())
@@ -233,7 +236,9 @@ namespace QuartzRemoteScheduler.Client
 
         public async Task<IReadOnlyCollection<JobKey>> GetJobKeys(GroupMatcher<JobKey> matcher, CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            
+            var res = await _connector.SchedulerRpcClient.GetJobKeysAsync(new SerializableJobMatcher(matcher), cancellationToken);
+            return res.Select(d => (JobKey) d).ToArray();
         }
 
         public async Task<IReadOnlyCollection<ITrigger>> GetTriggersOfJob(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
@@ -244,7 +249,10 @@ namespace QuartzRemoteScheduler.Client
 
         public async Task<IReadOnlyCollection<TriggerKey>> GetTriggerKeys(GroupMatcher<TriggerKey> matcher, CancellationToken cancellationToken = new CancellationToken())
         {
-            throw new NotImplementedException();
+            var res = await _connector.SchedulerRpcClient.GetTriggerKeysAsync(new SerializableTriggerMatcher(matcher),
+                cancellationToken);
+            return res.Select(d => (TriggerKey) d).ToArray();
+            
         }
 
         public async Task<IJobDetail> GetJobDetail(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())

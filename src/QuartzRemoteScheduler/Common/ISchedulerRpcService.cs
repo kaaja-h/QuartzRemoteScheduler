@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Common
 {
-    interface ISchedulerRpcService
+    internal interface ISchedulerRpcService
     {
         event EventHandler<SchedulerBasicData> BasicDataChanged;
 
@@ -100,5 +99,19 @@ namespace QuartzRemoteScheduler.Common
         Task<SerializableTrigger[]> GetTriggersOfJobAsync(SerializableJobKey jobKey, CancellationToken cancellationToken);
 
         Task PauseJobsAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken);
+
+        Task PauseTriggersAsync(SerializableTriggerMatcher matcher, CancellationToken cancellationToken);
+        
+        
+        Task ResumeJobsAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken);
+        
+        Task ResumeTriggersAsync(SerializableTriggerMatcher matcher, CancellationToken cancellationToken);
+
+        Task<SerializableJobKey[]> GetJobKeysAsync(SerializableJobMatcher matcher, CancellationToken cancellationToken);
+
+        Task<SerializableTriggerKey[]> GetTriggerKeysAsync(SerializableTriggerMatcher matcher,
+            CancellationToken cancellationToken);
+
+        Task<SerializableJobExecutionContext[]> GetCurrentlyExecutingJobsAsync(CancellationToken cancellationToken);
     }
 }

@@ -5,7 +5,7 @@ using Quartz.Impl.Matchers;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(true)]
-    class SerializableJobMatcher:SerializableMatcher<JobKey>
+    internal class SerializableJobMatcher:SerializableMatcher<JobKey>
     {
 
         public SerializableJobMatcher()

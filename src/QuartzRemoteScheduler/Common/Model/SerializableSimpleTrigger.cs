@@ -5,7 +5,7 @@ using Quartz;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName:true)]
-    class SerializableSimpleTrigger : SerializableTriggerBase
+    internal class SerializableSimpleTrigger : SerializableTriggerBase
     {
         
         public int RepeatCount { get; set; }

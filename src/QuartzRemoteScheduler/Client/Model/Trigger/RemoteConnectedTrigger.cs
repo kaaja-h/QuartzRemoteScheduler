@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
 using Quartz;
-using Quartz.Impl.Triggers;
 using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Client.Model.Trigger
 {
-    class RemoteConnectedTrigger:ITrigger
+    internal class RemoteConnectedTrigger:ITrigger
     {
         protected readonly Connector Connector;
         
@@ -15,7 +14,7 @@ namespace QuartzRemoteScheduler.Client.Model.Trigger
         protected T RunSync<T>(Func<Task<T>> f)
         {
             var jtf = new JoinableTaskFactory(new JoinableTaskContext());
-            return jtf.Run<T>(f);
+            return jtf.Run(f);
         } 
         
         protected void RunSync(Func<Task> f)
@@ -31,7 +30,7 @@ namespace QuartzRemoteScheduler.Client.Model.Trigger
                 return 0;
             if (other == null || other.Key == null)
                 return -1;
-            return this.Key == null ? 1 : this.Key.CompareTo((Quartz.Util.Key<TriggerKey>) other.Key);
+            return this.Key == null ? 1 : this.Key.CompareTo(other.Key);
         }
 
         public virtual TriggerBuilder GetTriggerBuilder()

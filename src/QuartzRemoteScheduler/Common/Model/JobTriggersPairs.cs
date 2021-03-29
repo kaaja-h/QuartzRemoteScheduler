@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace QuartzRemoteScheduler.Common.Model
+﻿namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePack.MessagePackObject(true)]
-    class JobTriggersPairs
+    internal class JobTriggersPairs
     {
         public JobTriggersPairsItems[] Data { get; set; }
     }

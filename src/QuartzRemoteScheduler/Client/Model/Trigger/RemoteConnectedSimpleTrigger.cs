@@ -4,7 +4,7 @@ using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Client.Model.Trigger
 {
-    class RemoteConnectedSimpleTrigger : RemoteConnectedTrigger, ISimpleTrigger
+    internal class RemoteConnectedSimpleTrigger : RemoteConnectedTrigger, ISimpleTrigger
     {
         public RemoteConnectedSimpleTrigger(SerializableSimpleTrigger data, Connector connector) : base(data, connector)
         {

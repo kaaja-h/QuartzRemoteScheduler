@@ -1,10 +1,9 @@
 ﻿using MessagePack;
-using Quartz.Util;
 
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    abstract class KeyData
+    internal abstract class KeyData
     {
         
         public string Name { get; set; }

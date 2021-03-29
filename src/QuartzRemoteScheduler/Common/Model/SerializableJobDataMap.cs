@@ -5,7 +5,7 @@ using Quartz;
 namespace QuartzRemoteScheduler.Common.Model
 {
     [MessagePackObject(keyAsPropertyName: true)]
-    class SerializableJobDataMap
+    internal class SerializableJobDataMap
     {
 
         public SerializableJobDataMapItem[] Values { get; set; }

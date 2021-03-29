@@ -4,7 +4,7 @@ using Quartz;
 
 namespace QuartzRemoteScheduler.Server.Listeners
 {
-    class EventTriggerListener:ITriggerListener
+    internal class EventTriggerListener:ITriggerListener
     {
         private readonly IScheduler _scheduler;
 

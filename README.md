@@ -1,6 +1,6 @@
 # QuartzRemoteScheduler
 
-Plugin for [quartz.net](quartz-scheduler.net) scheduler for enablign remote scheduler control
+Plugin for [quartz.net](https://quartz-scheduler.net) scheduler for enablign remote scheduler control
 
 ## Technology
 - netstandard2.0 - works in net462, net472, net5.0, ...
@@ -28,6 +28,19 @@ var conf = new RemoteSchedulerServerConfiguration("127.0.0.1", 12345, false);
 var schedulerFactory = new RemoteSchedulerFactory(conf);
 var scheduler = await sch.GetScheduler();
 ```
+
+## What is done
+- All ISchedule implementations excluding one which works with calendars
+- works remote job adding, scheduling, pausing, ...
+
+## What is not done
+- Listeners
+- ICalendar stuff
+
+## Future improvements
+- Add job which type is not present on client
+- Security
+
 
 ## Api
 Api can be found [here](api/QuartzRemoteScheduler.md)

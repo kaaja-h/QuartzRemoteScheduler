@@ -7,6 +7,7 @@ using Quartz;
 using Quartz.Core;
 using Quartz.Impl.Matchers;
 using Quartz.Spi;
+using QuartzRemoteScheduler.Client.Listeners;
 using QuartzRemoteScheduler.Client.Model;
 using QuartzRemoteScheduler.Client.Model.Trigger;
 using QuartzRemoteScheduler.Common.Model;
@@ -19,11 +20,12 @@ namespace QuartzRemoteScheduler.Client
         private SchedulerBasicData _data;
         private Connector _connector;
 
-        public  RemoteScheduler(SchedulerBasicData data, Connector connector)
+        public  RemoteScheduler(SchedulerBasicData data, Connector connector, IListenerManager listenerManager)
         {
             _data = data;
             _connector = connector;
             _connector.SchedulerRpcClient.BasicDataChanged += (sender, d) => _data = d;
+            ListenerManager = listenerManager;
         }
         
         
@@ -345,7 +347,7 @@ namespace QuartzRemoteScheduler.Client
         public bool InStandbyMode => _data.InStandbyMode;
         public bool IsShutdown => _data.IsShutdown;
         public IJobFactory JobFactory { get; set; }
-        public IListenerManager ListenerManager { get; } = new ListenerManagerImpl();
+        public IListenerManager ListenerManager { get; }
         public bool IsStarted => _data.IsStarted;
     }
 }

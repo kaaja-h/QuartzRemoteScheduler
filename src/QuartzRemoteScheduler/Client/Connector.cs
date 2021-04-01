@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Quartz;
+using QuartzRemoteScheduler.Client.Listeners;
 using QuartzRemoteScheduler.Common;
 using QuartzRemoteScheduler.Common.Configuration;
 using StreamJsonRpc;
@@ -42,7 +44,7 @@ namespace QuartzRemoteScheduler.Client
             return authStream;
         }
         
-        public async Task ConnectAsync()
+        public async Task ConnectAsync(IListenerManager listener)
         {
             
             // Client and server use port 11000.
@@ -59,6 +61,8 @@ namespace QuartzRemoteScheduler.Client
             
             SchedulerRpcClient = c.Attach<ISchedulerRpcService>();
             TriggerRpc = c.Attach<ITriggerRpcServer>();
+            c.AddLocalRpcTarget<IRemoteSchedulerListener>(new RemoteSchedulerListener(listener), new JsonRpcTargetOptions(){DisposeOnDisconnect = true});
+            
             c.StartListening();
             
             

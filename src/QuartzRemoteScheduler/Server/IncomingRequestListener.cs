@@ -6,6 +6,7 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Quartz;
+using QuartzRemoteScheduler.Common;
 using QuartzRemoteScheduler.Common.Configuration;
 using QuartzRemoteScheduler.Server.Listeners;
 using StreamJsonRpc;
@@ -57,16 +58,8 @@ namespace QuartzRemoteScheduler.Server
 
         private void ConnectWithServer(Stream stream, TcpClient client)
         {
-            var connector = new LengthHeaderMessageHandler(stream, stream, new MessagePackFormatter());
-            JsonRpc server = new JsonRpc(connector);
-            var schedulerProxy = new SchedulerRpcServer(client, _scheduler, _schedulerListener);
-            server.AddLocalRpcTarget(schedulerProxy);
-            var triggerRpcProxy = new TriggerRpcServer(_scheduler);
-            server.AddLocalRpcTarget(triggerRpcProxy);
-            server.Completion.ContinueWith(
-                task => schedulerProxy.Dispose(), TaskScheduler.Default
-            );
-            server.StartListening();
+            var instance = new ServerInstance(_scheduler, _schedulerListener, _eventJobListener, _eventTriggerListener);
+            instance.Connect(stream,client);
         }
 
         public async Task AuthenticateClientAsync(TcpClient clientRequest)

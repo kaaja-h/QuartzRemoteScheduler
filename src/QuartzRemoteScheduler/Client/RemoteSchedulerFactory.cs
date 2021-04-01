@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
 using Quartz;
+using Quartz.Core;
+using QuartzRemoteScheduler.Client.Listeners;
 using QuartzRemoteScheduler.Common.Configuration;
 
 namespace QuartzRemoteScheduler.Client
@@ -28,9 +30,10 @@ namespace QuartzRemoteScheduler.Client
         private async Task<RemoteScheduler> PrepareSchedulerAsync()
         {
             Connector c = new Connector(_conf);
-            await c.ConnectAsync();
+            var listenerManger = new ListenerManagerImpl();
+            await c.ConnectAsync(listenerManger);
             var basicData = await c.SchedulerRpcClient.GetBasicDataAsync();
-            var sch = new RemoteScheduler(basicData, c);
+            var sch = new RemoteScheduler(basicData, c,listenerManger);
             return sch;
         }
 

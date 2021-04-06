@@ -44,7 +44,7 @@ namespace QuartzRemoteScheduler.Client
             return authStream;
         }
         
-        public async Task ConnectAsync(IListenerManager listener)
+        public async Task ConnectAsync(RemoteSchedulerListener remoteSchedulerListener, RemoteJobListener remoteJobListener, RemoteTriggerListener remoteTriggerListener)
         {
             
             // Client and server use port 11000.
@@ -61,8 +61,9 @@ namespace QuartzRemoteScheduler.Client
             
             SchedulerRpcClient = c.Attach<ISchedulerRpcService>();
             TriggerRpc = c.Attach<ITriggerRpcServer>();
-            c.AddLocalRpcTarget<IRemoteSchedulerListener>(new RemoteSchedulerListener(listener), new JsonRpcTargetOptions(){DisposeOnDisconnect = true});
-            
+            c.AddLocalRpcTarget<IRemoteSchedulerListener>(remoteSchedulerListener, new JsonRpcTargetOptions(){DisposeOnDisconnect = true});
+            c.AddLocalRpcTarget<IRemoteJobListener>( remoteJobListener, new JsonRpcTargetOptions(){DisposeOnDisconnect = true});
+            c.AddLocalRpcTarget<IRemoteTriggerListener>( remoteTriggerListener, new JsonRpcTargetOptions(){DisposeOnDisconnect = true});
             c.StartListening();
             
             

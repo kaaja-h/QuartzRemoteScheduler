@@ -6,10 +6,8 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Quartz;
-using QuartzRemoteScheduler.Common;
 using QuartzRemoteScheduler.Common.Configuration;
 using QuartzRemoteScheduler.Server.Listeners;
-using StreamJsonRpc;
 
 namespace QuartzRemoteScheduler.Server
 {

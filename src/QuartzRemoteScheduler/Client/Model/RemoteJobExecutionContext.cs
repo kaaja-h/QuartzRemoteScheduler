@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using Quartz;
-using Quartz.Impl;
-using Quartz.Logging;
 using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Client.Model
 {
-    internal class RemoteJobExecutionContext:IJobExecutionContext, ICancellableJobExecutionContext
+    internal class RemoteJobExecutionContext: ICancellableJobExecutionContext
     {
 
         public void Put(object key, object objectValue)
@@ -35,7 +32,7 @@ namespace QuartzRemoteScheduler.Client.Model
         public DateTimeOffset? PreviousFireTimeUtc { get; }
         public DateTimeOffset? NextFireTimeUtc { get; }
         public string FireInstanceId { get; }
-        public object? Result { get; set; }
+        public object Result { get; set; }
         public TimeSpan JobRunTime { get; }
         public CancellationToken CancellationToken { get; }
         public void Cancel()

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Quartz;
@@ -10,64 +7,6 @@ using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Server.Listeners
 {
-
-    internal abstract class EventListenerBase<T>
-    {
-
-        private readonly ConcurrentDictionary<T,bool> _listeners = new();
-        
-        public void Subscribe(T listener)
-        {
-            _listeners[listener] = true;
-        }
-
-        public void Unsubscribe(T listener)
-        {
-            _listeners.TryRemove(listener, out _);
-        }
-
-        protected async Task<IEnumerable<TRes>> RunFunctionOnListenersAsync<TRes>(Func<T, Task<TRes>> func)
-        {
-            var t = _listeners.Keys.Select(d => Catch(d,func));
-            return await Task.WhenAll(t);
-        }
-
-        private async Task<TRes> Catch<TRes>(T data, Func<T, Task<TRes>> func)
-        {
-            try
-            {
-                return await func(data);
-            }
-            catch (Exception)
-            {
-                
-            }
-            return default;
-        }
-
-        private async Task Catch(T data, Func<T, Task> act)
-        {
-            try
-            {
-                await act(data);
-            }
-            catch (Exception)
-            {
-                
-            }
-        }
-
-        protected async Task RunActionOnListenersAsync(Func<T,Task> act)
-        {
-            var t = _listeners.Keys.Select(d => Catch(d,act));
-            await Task.WhenAll(t);
-        }
-        
-        
-        
-        
-    }
-    
     internal class EventSchedulerListener:EventListenerBase<IRemoteSchedulerListener>, ISchedulerListener
     {
         private readonly IScheduler _scheduler;
@@ -114,108 +53,114 @@ namespace QuartzRemoteScheduler.Server.Listeners
 
         public async Task TriggerFinalized(ITrigger trigger, CancellationToken cancellationToken = new CancellationToken())
         {
-            
+            var serializableTrigger = new SerializableTrigger(trigger);
+            await RunActionOnListenersAsync(d => d.TriggerFinalizedAsync(serializableTrigger, cancellationToken));
         }
 
         public async Task TriggerPaused(TriggerKey triggerKey, CancellationToken cancellationToken = new CancellationToken())
         {
-            
+            SerializableTriggerKey key = triggerKey; 
+            await RunActionOnListenersAsync(d => d.TriggerPausedAsync(key,cancellationToken));
         }
 
         public async Task TriggersPaused(string triggerGroup, CancellationToken cancellationToken = new CancellationToken())
         {
-            
+            await RunActionOnListenersAsync(d => d.TriggersPausedAsync(triggerGroup,cancellationToken));
         }
 
         public async Task TriggerResumed(TriggerKey triggerKey, CancellationToken cancellationToken = new CancellationToken())
         {
-            
+            SerializableTriggerKey key = triggerKey; 
+            await RunActionOnListenersAsync(d => d.TriggerResumedAsync(key,cancellationToken));
         }
 
-        public Task TriggersResumed(string triggerGroup, CancellationToken cancellationToken = new CancellationToken())
+        public async Task TriggersResumed(string triggerGroup, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            await RunActionOnListenersAsync(d => d.TriggersResumedAsync(triggerGroup,cancellationToken));
         }
 
-        public Task JobAdded(IJobDetail jobDetail, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobAdded(IJobDetail jobDetail, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            var job = new SerializableJobDetail(jobDetail);
+            await RunActionOnListenersAsync(d => d.JobAddedAsync(job,cancellationToken));
         }
 
-        public Task JobDeleted(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobDeleted(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            SerializableJobKey key = jobKey;
+            await RunActionOnListenersAsync(d => d.JobDeletedAsync(key,cancellationToken));
         }
 
-        public Task JobPaused(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobPaused(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            SerializableJobKey key = jobKey;
+            await RunActionOnListenersAsync(d => d.JobPausedAsync(key,cancellationToken));
         }
 
-        public Task JobInterrupted(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobInterrupted(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            SerializableJobKey key = jobKey;
+            await RunActionOnListenersAsync(d => d.JobInterruptedAsync(key,cancellationToken));
         }
 
-        public Task JobsPaused(string jobGroup, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobsPaused(string jobGroup, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            await RunActionOnListenersAsync(d => d.JobsPausedAsync(jobGroup,cancellationToken));
         }
 
-        public Task JobResumed(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobResumed(JobKey jobKey, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            SerializableJobKey key = jobKey;
+            await RunActionOnListenersAsync(d => d.JobResumedAsync(key,cancellationToken));;
         }
 
-        public Task JobsResumed(string jobGroup, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobsResumed(string jobGroup, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            await RunActionOnListenersAsync(d => d.JobsResumedAsync(jobGroup,cancellationToken));
         }
 
-        public Task SchedulerError(string msg, SchedulerException cause,
+        public async Task SchedulerError(string msg, SchedulerException cause,
             CancellationToken cancellationToken = new CancellationToken())
         {
             TriggerBasicData();
-            return Task.CompletedTask;
+            await RunActionOnListenersAsync(d => d.SchedulerErrorAsync(msg, cause.Message,cancellationToken));
+        }
+
+        public async Task SchedulerInStandbyMode(CancellationToken cancellationToken = new CancellationToken())
+        {
+            TriggerBasicData();
+            await RunActionOnListenersAsync(d => d.SchedulerInStandbyModeAsync(cancellationToken));
+        }
+
+        public async Task SchedulerStarted(CancellationToken cancellationToken = new CancellationToken())
+        {
+            TriggerBasicData();
+            await RunActionOnListenersAsync(d => d.SchedulerStartedAsync(cancellationToken));
+        }
+
+        public async Task SchedulerStarting(CancellationToken cancellationToken = new CancellationToken())
+        {
+            TriggerBasicData();
+            await RunActionOnListenersAsync(d => d.SchedulerStartingAsync(cancellationToken));
 
         }
 
-        public Task SchedulerInStandbyMode(CancellationToken cancellationToken = new CancellationToken())
+        public async Task SchedulerShutdown(CancellationToken cancellationToken = new CancellationToken())
         {
             TriggerBasicData();
-            return Task.CompletedTask;
+            await RunActionOnListenersAsync(d => d.SchedulerShutdownAsync(cancellationToken));
         }
 
-        public  Task SchedulerStarted(CancellationToken cancellationToken = new CancellationToken())
+        public async Task SchedulerShuttingdown(CancellationToken cancellationToken = new CancellationToken())
         {
             TriggerBasicData();
-            return Task.CompletedTask;
-
+            await RunActionOnListenersAsync(d => d.SchedulerShuttingdownAsync(cancellationToken));
         }
 
-        public Task SchedulerStarting(CancellationToken cancellationToken = new CancellationToken())
+        public async Task SchedulingDataCleared(CancellationToken cancellationToken = new CancellationToken())
         {
             TriggerBasicData();
-            return Task.CompletedTask;
-
-        }
-
-        public Task SchedulerShutdown(CancellationToken cancellationToken = new CancellationToken())
-        {
-            TriggerBasicData();
-            return Task.CompletedTask;
-        }
-
-        public Task SchedulerShuttingdown(CancellationToken cancellationToken = new CancellationToken())
-        {
-            TriggerBasicData();
-            return Task.CompletedTask;
-        }
-
-        public Task SchedulingDataCleared(CancellationToken cancellationToken = new CancellationToken())
-        {
-            TriggerBasicData();
-            return Task.CompletedTask;
+            await RunActionOnListenersAsync(d => d.SchedulingDataClearedAsync(cancellationToken));
         }
     }
 }

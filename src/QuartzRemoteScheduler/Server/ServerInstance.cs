@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Quartz;
 using QuartzRemoteScheduler.Common;
 using QuartzRemoteScheduler.Server.Listeners;
@@ -19,6 +18,8 @@ namespace QuartzRemoteScheduler.Server
         private SchedulerRpcServer _schedulerProxy;
         private TriggerRpcServer _triggerRpcProxy;
         private IRemoteSchedulerListener _remoteSchedulerListener;
+        private IRemoteJobListener _remoteJobListener;
+        private IRemoteTriggerListener _remoteTriggerListener;
 
 
         public ServerInstance(IScheduler scheduler, EventSchedulerListener schedulerListener, EventJobListener eventJobListener, EventTriggerListener eventTriggerListener)
@@ -40,6 +41,10 @@ namespace QuartzRemoteScheduler.Server
             
             _remoteSchedulerListener = _server.Attach<IRemoteSchedulerListener>();
             _schedulerListener.Subscribe(_remoteSchedulerListener);
+            _remoteJobListener = _server.Attach<IRemoteJobListener>();
+            _eventJobListener.Subscribe(_remoteJobListener);
+            _remoteTriggerListener = _server.Attach<IRemoteTriggerListener>();
+            _eventTriggerListener.Subscribe(_remoteTriggerListener);
             _server.Completion.ContinueWith(t => Dispose());
             _server.StartListening();
         }
@@ -48,6 +53,7 @@ namespace QuartzRemoteScheduler.Server
         {
             _schedulerProxy.Dispose();
             _schedulerListener.Unsubscribe(_remoteSchedulerListener);
+            _eventJobListener.Unsubscribe(_remoteJobListener);
         }
     }
 }

@@ -1,39 +1,46 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Quartz;
+using QuartzRemoteScheduler.Common;
+using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Server.Listeners
 {
-    internal class EventTriggerListener:ITriggerListener
+    internal class EventTriggerListener:EventListenerBase<IRemoteTriggerListener>, ITriggerListener
     {
-        private readonly IScheduler _scheduler;
 
-        public EventTriggerListener(IScheduler scheduler)
-        {
-            _scheduler = scheduler;
-        }
 
-        public Task TriggerFired(ITrigger trigger, IJobExecutionContext context,
+
+        public async Task TriggerFired(ITrigger trigger, IJobExecutionContext context,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            var tr = new SerializableTrigger(trigger);
+            var c = new SerializableJobExecutionContext(context);
+            await RunActionOnListenersAsync(l => l.TriggerFired(tr, c, cancellationToken));
         }
 
-        public Task<bool> VetoJobExecution(ITrigger trigger, IJobExecutionContext context,
+        public async Task<bool> VetoJobExecution(ITrigger trigger, IJobExecutionContext context,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.FromResult(false);
+            var tr = new SerializableTrigger(trigger);
+            var c = new SerializableJobExecutionContext(context);
+            var res = await RunActionOnListenersAsync(l => l.VetoJobExecution(tr, c, cancellationToken));
+            return res.Any(d => d);
         }
 
-        public Task TriggerMisfired(ITrigger trigger, CancellationToken cancellationToken = new CancellationToken())
+        public async Task TriggerMisfired(ITrigger trigger, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            var tr = new SerializableTrigger(trigger);
+            await RunActionOnListenersAsync(l => l.TriggerMisfired(tr, cancellationToken));
         }
 
-        public Task TriggerComplete(ITrigger trigger, IJobExecutionContext context, SchedulerInstruction triggerInstructionCode,
+        public async Task TriggerComplete(ITrigger trigger, IJobExecutionContext context, SchedulerInstruction triggerInstructionCode,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            var tr = new SerializableTrigger(trigger);
+            var c = new SerializableJobExecutionContext(context);
+            await RunActionOnListenersAsync(l => l.TriggerComplete(tr, c, (int) triggerInstructionCode, cancellationToken));
         }
 
         public string Name { get; } = "EventTriggerListener";

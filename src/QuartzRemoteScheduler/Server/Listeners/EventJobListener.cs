@@ -1,32 +1,31 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Quartz;
+using QuartzRemoteScheduler.Common;
+using QuartzRemoteScheduler.Common.Model;
 
 namespace QuartzRemoteScheduler.Server.Listeners
 {
-    internal class EventJobListener:IJobListener
+    internal class EventJobListener:EventListenerBase<IRemoteJobListener>,IJobListener
     {
-        private readonly IScheduler _scheduler;
-
-        public EventJobListener(IScheduler scheduler)
+        public async Task JobToBeExecuted(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
         {
-            _scheduler = scheduler;
+            SerializableJobExecutionContext c = new SerializableJobExecutionContext(context);
+            await RunActionOnListenersAsync(l => l.JobToBeExecutedAsync(c, cancellationToken));
         }
 
-        public Task JobToBeExecuted(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
+        public async Task JobExecutionVetoed(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            SerializableJobExecutionContext c = new SerializableJobExecutionContext(context);
+            await RunActionOnListenersAsync(l => l.JobExecutionVetoedAsync(c, cancellationToken));
         }
 
-        public Task JobExecutionVetoed(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task JobWasExecuted(IJobExecutionContext context, JobExecutionException jobException,
+        public async Task JobWasExecuted(IJobExecutionContext context, JobExecutionException jobException,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.CompletedTask;
+            SerializableJobExecutionContext c = new SerializableJobExecutionContext(context);
+            SerializableJobExecutionException ex = new SerializableJobExecutionException(jobException);
+            await RunActionOnListenersAsync(l => l.JobWasExecutedAsync(c,ex, cancellationToken));
         }
 
         public string Name { get; } = "EventJobListener";

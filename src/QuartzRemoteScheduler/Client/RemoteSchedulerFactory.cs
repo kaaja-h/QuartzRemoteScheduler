@@ -31,9 +31,14 @@ namespace QuartzRemoteScheduler.Client
         {
             Connector c = new Connector(_conf);
             var listenerManger = new ListenerManagerImpl();
-            await c.ConnectAsync(listenerManger);
+            var remoteSchedulerListener = new RemoteSchedulerListener(listenerManger);
+            var remoteJobListener = new RemoteJobListener(listenerManger);
+            var remoteTriggerListener = new RemoteTriggerListener(listenerManger);
+            await c.ConnectAsync(remoteSchedulerListener, remoteJobListener, remoteTriggerListener);
             var basicData = await c.SchedulerRpcClient.GetBasicDataAsync();
             var sch = new RemoteScheduler(basicData, c,listenerManger);
+            remoteJobListener.Scheduler = sch;
+            remoteTriggerListener.Scheduler = sch;
             return sch;
         }
 

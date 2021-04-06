@@ -52,8 +52,8 @@ namespace QuartzRemoteScheduler.Server
             _configuration = new RemoteSchedulerServerConfiguration(Address, Port, EnableNegotiateStream);
             _scheduler = scheduler;
             _schedulerListener = new EventSchedulerListener(_scheduler);
-            _eventJobListener = new EventJobListener(_scheduler);
-            _eventTriggerListener = new EventTriggerListener(_scheduler);
+            _eventJobListener = new EventJobListener();
+            _eventTriggerListener = new EventTriggerListener();
             _listener = new IncomingRequestListener(_configuration,_scheduler, _schedulerListener, _eventJobListener, _eventTriggerListener);
             _scheduler.ListenerManager.AddSchedulerListener(_schedulerListener);
             _scheduler.ListenerManager.AddTriggerListener(_eventTriggerListener);

@@ -4,10 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Quartz;
-using Quartz.Core;
 using Quartz.Impl.Matchers;
 using Quartz.Spi;
-using QuartzRemoteScheduler.Client.Listeners;
 using QuartzRemoteScheduler.Client.Model;
 using QuartzRemoteScheduler.Client.Model.Trigger;
 using QuartzRemoteScheduler.Common.Model;
@@ -24,7 +22,7 @@ namespace QuartzRemoteScheduler.Client
         {
             _data = data;
             _connector = connector;
-            _connector.SchedulerRpcClient.BasicDataChanged += (sender, d) => _data = d;
+            _connector.SchedulerRpcClient.BasicDataChanged += (_, d) => _data = d;
             ListenerManager = listenerManager;
         }
         

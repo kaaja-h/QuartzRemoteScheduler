@@ -32,10 +32,12 @@ var scheduler = await sch.GetScheduler();
 ## What is done
 - All ISchedule implementations excluding one which works with calendars
 - works remote job adding, scheduling, pausing, ...
+- Listeners - all listeners should work
 
 ## What is not done
-- Listeners
+
 - ICalendar stuff
+
 
 ## Future improvements
 - Add job which type is not present on client
